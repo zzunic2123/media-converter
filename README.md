@@ -66,7 +66,7 @@ This makes it easy to extend the system with more formats or conversion methods 
 To allow progress polling and avoid blocking the request thread:
 
 - `ConversionJobService.startJob(...)` saves the file and spawns a **new thread**
-- Conversion is done in background (either via FFmpeg)
+- Conversion is done in background (r via FFmpeg)
 - Progress is tracked and updated via `JobTrackingService`
 - Once complete, the converted result is stored and ready for download
 
