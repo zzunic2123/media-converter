@@ -12,7 +12,7 @@ Supports converting **images** and **videos** to multiple formats with file uplo
 
 ## How to Run
 
-### 🛠 Backend (Spring Boot)
+### Backend (Spring Boot)
 
 ```bash
 cd Backend/media-converter
@@ -49,7 +49,7 @@ Runs at: `http://localhost:4200`
 
 ---
 
-## ⚙ Backend Architecture
+## Backend Architecture
 
 To simulate realistic conversion progress and avoid blocking the request thread, the backend uses multithreading for media conversion jobs.
 
@@ -61,7 +61,7 @@ To simulate realistic conversion progress and avoid blocking the request thread,
 This design ensures a responsive user experience and scalable backend processing.
 ---
 
-## ⚠️ Notes
+##  Notes
 
 - Max file size: **10 MB**
 - For image converting progress is simulated on backend
