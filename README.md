@@ -49,17 +49,35 @@ Runs at: `http://localhost:4200`
 
 ---
 
-## Backend Architecture
+## Backend Architecture & Design
 
-To simulate realistic conversion progress and avoid blocking the request thread, the backend uses multithreading for media conversion jobs.
+### Strategy Pattern for Conversion
 
-- Each conversion runs in a **separate thread** using `new Thread(...)` from `ConversionJobService`
-- This allows the frontend to poll `/api/status/progress/{jobId}` for live progress updates
-- The job is tracked using `JobTrackingService` and a unique `jobId`
-- Converted data is returned as a byte array and downloaded automatically on the frontend
+The backend uses the **Strategy Pattern** to handle different media types:
 
-This design ensures a responsive user experience and scalable backend processing.
----
+- `MediaConversionStrategy<T extends FormatType>` defines a generic interface
+- `ImageConverterStrategy` and `VideoConverterStrategy` implement format-specific logic
+- `MediaConversionContext` delegates to the appropriate strategy at runtime
+
+This makes it easy to extend the system with more formats or conversion methods later.
+
+### Asynchronous Job Handling
+
+To allow progress polling and avoid blocking the request thread:
+
+- `ConversionJobService.startJob(...)` saves the file and spawns a **new thread**
+- Conversion is done in background (either via FFmpeg)
+- Progress is tracked and updated via `JobTrackingService`
+- Once complete, the converted result is stored and ready for download
+
+### Job Flow Summary
+
+1. **Frontend** uploads a file with target format
+2. **Backend** saves the file and starts a conversion thread
+3. **Strategy** is selected based on the file type (image or video)
+4. **JobTrackingService** tracks and updates progress
+5. **Frontend** polls `/status/progress/{jobId}`
+6. Once done, the frontend calls `/status/result/{jobId}` to download the file
 
 ##  Notes
 
