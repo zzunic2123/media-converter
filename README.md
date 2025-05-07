@@ -58,7 +58,6 @@ The backend uses the Strategy Pattern to handle different media types:
 - `ImageConverterStrategy` and `VideoConverterStrategy` implement format-specific logic
 - `MediaConversionContext` delegates to the appropriate strategy at runtime
 
-This design makes the system easy to extend with new media types or conversion tools.
 
 ---
 
@@ -70,8 +69,6 @@ To simulate realistic conversion progress and avoid blocking the request thread,
 - This allows the frontend to poll `/api/status/progress/{jobId}` for live progress updates
 - The job is tracked using `JobTrackingService` and a unique `jobId`
 - Converted data is returned as a byte array and downloaded automatically on the frontend
-
-This design ensures responsiveness, avoids timeouts, and supports tracking progress without blocking the HTTP request lifecycle.
 
 ---
 
