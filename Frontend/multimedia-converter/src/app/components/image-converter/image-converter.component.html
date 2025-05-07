@@ -1,0 +1,25 @@
+<div class="converter-container">
+  <h2>Image Converter</h2>
+
+  <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+
+  <p class="note">
+    Max file size: 10MB. Progress is simulated for demonstration purposes.
+  </p>
+
+  <div>
+    <label for="format">Select target format:</label>
+    <select id="format" [(ngModel)]="selectedFormat">
+      <option *ngFor="let format of imageFormats" [value]="format">{{ format }}</option>
+    </select>
+  </div>
+
+  <button (click)="convert()" [disabled]="!uploadedFile || isDownloading">Convert</button>
+
+  <app-progress-bar *ngIf="progress > 0 && progress < 100" [value]="progress"></app-progress-bar>
+
+  <div *ngIf="progress === 100">
+    <p>Conversion complete. Downloading...</p>
+  </div>
+
+</div>
