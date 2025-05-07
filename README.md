@@ -1,12 +1,12 @@
-# Media Converter (images and videos)
+# Media Converter
 
 A full-stack multimedia converter web application built with:
 
-- **Angular 17** (standalone) — frontend  
-- **Spring Boot** — backend  
-- **FFmpeg** — media processing
+- Angular 17 (standalone) — frontend  
+- Spring Boot — backend  
+- FFmpeg — media processing
 
-Supports converting **images** and **videos** to multiple formats with file upload, progress indication, and automatic download.
+Supports converting images and videos to multiple formats with file upload, progress indication, and automatic download.
 
 ---
 
@@ -21,7 +21,7 @@ cd Backend/media-converter
 
 Runs at: `http://localhost:8080`
 
-> Ensure `ffmpeg.exe`, `ffplay.exe`, and `ffprobe.exe` are available under `external/ffmpeg/`.
+Make sure `ffmpeg.exe`, `ffplay.exe`, and `ffprobe.exe` are available under `external/ffmpeg/`.
 
 ---
 
@@ -37,8 +37,7 @@ Runs at: `http://localhost:4200`
 
 ---
 
-
-##  API Endpoints
+## API Endpoints
 
 | Method | Endpoint                          | Description                    |
 |--------|-----------------------------------|--------------------------------|
@@ -49,41 +48,50 @@ Runs at: `http://localhost:4200`
 
 ---
 
-## Backend Architecture & Design
+## Architecture and Design
 
 ### Strategy Pattern for Conversion
 
-The backend uses the **Strategy Pattern** to handle different media types:
+The backend uses the Strategy Pattern to handle different media types:
 
 - `MediaConversionStrategy<T extends FormatType>` defines a generic interface
 - `ImageConverterStrategy` and `VideoConverterStrategy` implement format-specific logic
 - `MediaConversionContext` delegates to the appropriate strategy at runtime
 
-This makes it easy to extend the system with more formats or conversion methods later.
+This design makes the system easy to extend with new media types or conversion tools.
 
-### Asynchronous Job Handling
+---
 
-To allow progress polling and avoid blocking the request thread:
+### Asynchronous Job Handling with Progress Tracking
 
-- `ConversionJobService.startJob(...)` saves the file and spawns a **new thread**
-- Conversion is done in background (r via FFmpeg)
-- Progress is tracked and updated via `JobTrackingService`
-- Once complete, the converted result is stored and ready for download
+To simulate realistic conversion progress and avoid blocking the request thread, the backend uses multithreading for media conversion jobs:
+
+- Each conversion runs in a separate thread using `new Thread(...)` from `ConversionJobService`
+- This allows the frontend to poll `/api/status/progress/{jobId}` for live progress updates
+- The job is tracked using `JobTrackingService` and a unique `jobId`
+- Converted data is returned as a byte array and downloaded automatically on the frontend
+
+This design ensures responsiveness, avoids timeouts, and supports tracking progress without blocking the HTTP request lifecycle.
+
+---
 
 ### Job Flow Summary
 
-1. **Frontend** uploads a file with target format
-2. **Backend** saves the file and starts a conversion thread
-3. **Strategy** is selected based on the file type (image or video)
-4. **JobTrackingService** tracks and updates progress
-5. **Frontend** polls `/status/progress/{jobId}`
-6. Once done, the frontend calls `/status/result/{jobId}` to download the file
-
-##  Notes
-
-- Max file size: **10 MB**
-- For image converting progress is simulated on backend
-- Large binaries (e.g. FFmpeg) should be excluded from Git or managed with Git LFS
+1. The frontend uploads a file with the selected target format
+2. The backend saves the file and starts a conversion thread
+3. A specific strategy is chosen depending on the media type
+4. `JobTrackingService` monitors progress and stores results
+5. The frontend polls progress using `/status/progress/{jobId}`
+6. Once finished, the frontend downloads the result via `/status/result/{jobId}`
 
 ---
+
+## Notes
+
+- Maximum upload file size is 10 MB
+- Image conversion progress is simulated
+- Video conversion progress is parsed from FFmpeg output
+
+---
+
 
